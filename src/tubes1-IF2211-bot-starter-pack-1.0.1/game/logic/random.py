@@ -14,6 +14,27 @@ class RandomLogic(BaseLogic):
 
     def next_move(self, board_bot: GameObject, board: Board):
         props = board_bot.properties
+
+        # Get diamond, teleport, red button, and bot position - DEBUG DUDE
+        diamond = board.diamonds[0]
+        teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
+        # red_button = [d for d in board.game_objects if d.type == "RedButtonGameObject"]
+
+        bot1 = board.bots[-1]
+        # base1 = board.bots[-1].properties.base
+        
+        bot2 = board.bots[0]
+        # base2 = board.bots[1].properties.base
+    
+        print("diamond:", diamond.position.x, diamond.position.y)
+        print("teleport:", teleport[0].position.x, teleport[0].position.y)
+        # print("red button:", red_button[0].position.x, red_button[0].position.y)
+        
+        print("bot 1:", bot1.position.x, bot1.position.y)
+        # print("base 1:", base1.x, base1.y)
+        print("bot 2:", bot2.position.x, bot2.position.y)
+        # print("base 2:", base2.x, base2.y)
+        
         # Analyze new state
         if props.diamonds == 5:
             # Move to base
@@ -41,4 +62,4 @@ class RandomLogic(BaseLogic):
                 self.current_direction = (self.current_direction + 1) % len(
                     self.directions
                 )
-        return delta_x, delta_y
+        return 0,1
