@@ -9,9 +9,12 @@ from typing import List
 
 class RandomLogic(BaseLogic):
     def __init__(self):
+        self.is_position_red_button_moved = False
+        self.list_most_diamonds_in_quadrant = []
         self.directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
         self.goal_position: Optional[Position] = None
         self.current_direction = 0
+        self.current_position_red_button_x = None
 
     '''
     5 komponen:
@@ -22,15 +25,11 @@ class RandomLogic(BaseLogic):
     5. Inventory: Bot memiliki inventory yang berfungsi sebagai tempat penyimpanan sementara diamond yang telah diambil. Inventory ini memiliki kapasitas maksimum sehingga sewaktu waktu bisa penuh. Agar inventory ini tidak penuh, bot bisa menyimpan isi inventory ke base agar inventory bisa kosong kembali. 
     '''
 
-    quadrant = 0
-
     # Bagi board menjadi 4 bagian/kuadran
-    def get_quadrant_max_diamonds(board: Board) -> int:
-        diamonds_quadrant_counts = [[], [], [], []] 
-
-        # Mendapatkan posisi tengah board
+    def get_quadrant_max_diamonds(self, board: Board) -> List[GameObject]:
         center_x = board.width // 2
         center_y = board.height // 2
+        diamonds_quadrant_counts = [[], [], [], []]
 
         for diamond in board.diamonds:
             quadrant =  1 if diamond.position.x >= center_x and diamond.position.y >= center_y else \
@@ -39,24 +38,41 @@ class RandomLogic(BaseLogic):
                         4
             diamonds_quadrant_counts[quadrant-1].append(diamond)
 
-        quadrant_max_diamonds = diamonds_quadrant_counts.index(max((len(a) for a in diamonds_quadrant_counts), default=None) + 1)
+        quadrant_max_diamonds = max(range(len(diamonds_quadrant_counts)), key=lambda i: len(diamonds_quadrant_counts[i]))
 
-        return quadrant_max_diamonds
-
+        return diamonds_quadrant_counts[quadrant_max_diamonds]
 
     def next_move(self, board_bot: GameObject, board: Board):
-        global quadrant
+        red_button = [d for d in board.game_objects if d.type == "DiamondButtonGameObject"]
+        
+        # if the red button's position is different from the previous position, then the red button has been moved -> is_position_red_button_moved = True
+        if self.current_position_red_button_x and (self.current_position_red_button_x != red_button[0].position.x or self.current_position_red_button_y != red_button[0].position.y):
+            self.is_position_red_button_moved = True
+
+        self.current_position_red_button_x = red_button[0].position.x
+        self.current_position_red_button_y = red_button[0].position.y
+
+        if self.is_position_red_button_moved or self.list_most_diamonds_in_quadrant == []:
+            self.list_most_diamonds_in_quadrant = self.get_quadrant_max_diamonds(board)
+
 
         # Deklarasi board, posisi, sorted list diamond, teleport, red button
         props = board_bot.properties
         current_position = board_bot.position
-        list_diamonds = sorted(board.diamonds, key=lambda diamond: abs(diamond.position.x - current_position.x) + abs(diamond.position.y - current_position.y))
-        teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
-        red_button = [d for d in board.game_objects if d.type == "DiamondButtonGameObject"]
-        diamonds = list_diamonds[0]
 
+        if self.list_most_diamonds_in_quadrant:
+            list_diamonds = sorted(self.list_most_diamonds_in_quadrant, key=lambda diamond: abs(diamond.position.x - current_position.x) + abs(diamond.position.y - current_position.y))
+            diamonds = list_diamonds[0]
+        else:
+            diamonds = None  
+
+        teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
+
+        if current_position.x == diamonds.position.x and current_position.y == diamonds.position.y:
+            self.list_most_diamonds_in_quadrant.remove(diamonds)
+        
         # print bot position
-        print(f"Bot position: {current_position.x}, {current_position.y}")
+        # print(f"Bot position: {current_position.x}, {current_position.y}")
 
         # get many of steps to base and time left
         steps_to_base = abs(current_position.x - props.base.x) + abs(current_position.y - props.base.y)
@@ -68,27 +84,18 @@ class RandomLogic(BaseLogic):
         #     # Skip red diamond kalo sudah punya 4 diamonds
         #     self.goal_position = list_diamonds[1].position
 
-        # if len(list_diamonds) > 0:
-            #  self.goal_position = list_diamonds[0].position
-            #  for diamond in list_diamonds:
-            #      if diamond.position.x >= center_x and diamond.position.y >= center_y and quadrant_max_diamonds == 1:
-            #          self.goal_position = diamond.position
-            #          break
-            #      elif diamond.position.x < center_x and diamond.position.y >= center_y and quadrant_max_diamonds == 2:
-            #          self.goal_position = diamond.position
-            #          break
-            #      elif diamond.position.x < center_x and diamond.position.y < center_y and quadrant_max_diamonds == 3:
-            #          self.goal_position = diamond.position
-            #          break
-            #      elif diamond.position.x >= center_x and diamond.position.y < center_y and quadrant_max_diamonds == 4:
-            #          self.goal_position = diamond.position
-            #          break
+        # bot akan mengambil diamond yang berada di kuadran yang paling banyak diamondnya (list_most_diamonds_in_quadrant)
+        if diamonds and ((steps_to_base <= time_left) or props.diamonds >= 4):
+            self.goal_position = props.base
+        elif diamonds:
+            self.goal_position = diamonds.position
+        else:
+            self.goal_position = None
+
 
         if (steps_to_base == time_left) or props.diamonds == 5 or props.diamonds == 4:
             # Pulang ke base
             self.goal_position = board_bot.properties.base
-        else:
-            self.goal_position = None
 
         # Jalankan get direction
         if self.goal_position:
@@ -107,3 +114,40 @@ class RandomLogic(BaseLogic):
             )
 
         return delta_x, delta_y
+
+    '''
+    def next_move(self, board_bot: GameObject, board: Board):
+        if not self.is_position_red_button_moved:
+                self.list_most_diamonds_in_quadrant = self.get_quadrant_max_diamonds(board)
+
+        props = board_bot.properties
+        current_position = board_bot.position
+
+        if self.list_most_diamonds_in_quadrant:
+            list_diamonds = sorted(self.list_most_diamonds_in_quadrant, key=lambda diamond: abs(diamond.position.x - current_position.x) + abs(diamond.position.y - current_position.y))
+            diamonds = list_diamonds[0]
+        else:
+            diamonds = None
+
+        # Logic for red button movement (Placeholder for actual implementation)
+        # is_position_red_button_moved = check_if_red_button_moved(board)
+
+        steps_to_base = abs(current_position.x - props.base.x) + abs(current_position.y - props.base.y)
+        time_left = int(props.milliseconds_left / 1000)
+
+        # Decide goal position based on various conditions
+        if diamonds and ((steps_to_base <= time_left) or props.diamonds >= 4):
+            self.goal_position = props.base
+        elif diamonds:
+            self.goal_position = diamonds.position
+
+        # Determine the direction to move towards the goal position
+        if self.goal_position:
+            delta_x, delta_y = get_direction(current_position.x, current_position.y, self.goal_position.x, self.goal_position.y)
+        elif diamonds:  # Move towards the closest diamond if there's no specific goal
+            delta_x, delta_y = get_direction(current_position.x, current_position.y, diamonds.position.x, diamonds.position.y)
+        else:
+            delta_x, delta_y = 0, 0  # Stay in place if there are no diamonds
+
+        return delta_x, delta_y
+    '''
