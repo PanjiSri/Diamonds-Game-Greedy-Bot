@@ -23,14 +23,15 @@ class RandomLogic(BaseLogic):
             print(f"position of a diamond: ({diamond.position.x}, {diamond.position.y})")
 
         # teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
-    
+        
         # Analyze new state
         steps_to_base = abs(current_position.x - props.base.x) + abs(current_position.y - props.base.y)
         time_left = int(board_bot.properties.milliseconds_left / 1000)
+        diamond = list_diamonds[0]
+        base = board_bot.properties.base
 
-        if (props.diamonds == props.inventory_size) or (steps_to_base == time_left):  # belum tackle punya bobot 4 dan ketemu red diamond
+        if (props.diamonds == props.inventory_size) or (steps_to_base == time_left) or (diamond.properties.points == 2):  # belum tackle punya bobot 4 dan ketemu red diamond
             # Pulang ke base
-            base = board_bot.properties.base
             delta_x, delta_y = get_direction(
                 current_position.x,
                 current_position.y,
@@ -39,19 +40,10 @@ class RandomLogic(BaseLogic):
             )
         else:
             # Ambil diamond
-            diamond = list_diamonds[0]
             delta_x, delta_y = get_direction(
                 current_position.x,
                 current_position.y,
                 diamond.position.x,
                 diamond.position.y,
             )
-            if delta_x == delta_y:
-                diamond = list_diamonds[1]
-                delta_x, delta_y = get_direction(
-                    current_position.x,
-                    current_position.y,
-                    diamond.position.x,
-                    diamond.position.y,
-                )
         return delta_x, delta_y
