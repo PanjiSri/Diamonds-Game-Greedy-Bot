@@ -60,19 +60,19 @@ class RandomLogic(BaseLogic):
         if self.list_most_diamonds_in_quadrant == []:
             self.list_most_diamonds_in_quadrant = self.get_most_diamonds_in_quadrant(board)
             list_diamonds = sorted(self.list_most_diamonds_in_quadrant, key=lambda diamond: abs(diamond.position.x - current_position.x) + abs(diamond.position.y - current_position.y))
-            diamonds = list_diamonds[0]
+            diamond = list_diamonds[0]
         else:
-            diamonds = None
+            diamond = None
 
         # teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
 
-        if (self.list_most_diamonds_in_quadrant) or (current_position.x == diamonds.position.x and current_position.y == diamonds.position.y):
+        if (self.list_most_diamonds_in_quadrant) or (current_position.x == diamond.position.x and current_position.y == diamond.position.y):
             self.list_most_diamonds_in_quadrant = self.get_most_diamonds_in_quadrant(board)
             list_diamonds = sorted(self.list_most_diamonds_in_quadrant, key=lambda diamond: abs(diamond.position.x - current_position.x) + abs(diamond.position.y - current_position.y))
-            diamonds = list_diamonds[0]
-        
+            diamond = list_diamonds[0]
+
         # Pulang ke base
-        if steps_to_base == time_left or props.diamonds >= props.inventory_size:
+        if steps_to_base == time_left or props.diamonds == props.inventory_size or (diamond.properties.points == 2 and props.diamonds == props.inventory_size - 1):
             self.goal_position = props.base
         elif self.list_most_diamonds_in_quadrant:
             closest_diamond = min(
