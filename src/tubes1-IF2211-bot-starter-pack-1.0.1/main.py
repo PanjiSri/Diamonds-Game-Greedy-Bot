@@ -8,6 +8,7 @@ from game.bot_handler import BotHandler
 from game.logic.amalia import Amalia
 from game.logic.panji import Panji
 from game.logic.bana import Bana
+from game.logic.random import RandomLogic
 from game.util import *
 from game.logic.base import BaseLogic
 
@@ -18,6 +19,7 @@ CONTROLLERS = {
     "Amalia": Amalia,
     "Panji": Panji,
     "Bana": Bana,
+    "Random": RandomLogic,
 }
 
 ###############################################################################
