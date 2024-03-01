@@ -16,6 +16,9 @@ class RandomLogic(BaseLogic):
         dirX, dirY = clamp(pos1.x - pos2.x, -1, 1), clamp(pos1.y - pos2.y, -1, 1)
         diamonds = [d for d in board.game_objects if ((d.type == "DiamondGameObject") and (d.position.x in range(pos1.x, pos2.x, dirX)) and (d.position.y in range(pos1.y, pos2.y, dirY)))]
         return diamonds
+    
+    def getDistance(self, pos1: Position, pos2: Position) -> int:
+        return (abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y))
 
     def next_move(self, board_bot: GameObject, board: Board):
         props = board_bot.properties
@@ -25,7 +28,7 @@ class RandomLogic(BaseLogic):
         redButton = [d.position for d in board.game_objects if d.type == "DiamondButtonGameObject"][0]
         
         diamonds = self.getDiamond_inRange(board, base, redButton)
-        diamonds = sorted(diamonds, key=lambda diamond: abs(diamond.position.x - current_position.x) + abs(diamond.position.y - current_position.y))
+        diamonds = sorted(diamonds, key=lambda diamond: self.getDistance(diamond.position, current_position))
         
         # Analyze new state
         if props.diamonds == 5:
