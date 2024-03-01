@@ -4,6 +4,7 @@ from game.logic.base import BaseLogic
 from game.models import GameObject, Board, Position
 from ..util import get_direction
 
+# By Distance
 class Panji(BaseLogic):
     def __init__(self):
         self.directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
@@ -14,13 +15,6 @@ class Panji(BaseLogic):
         props = board_bot.properties
         current_position = board_bot.position
         list_diamonds = sorted(board.diamonds, key=lambda diamond: abs(diamond.position.x - current_position.x) + abs(diamond.position.y - current_position.y))
-
-        for diamond in list_diamonds:
-            # print distance of each diamond from bot
-            print(f"distance of a diamond from bot: {abs(diamond.position.x - current_position.x)}, {abs(diamond.position.y - current_position.y)}")
-
-            # print position of each diamond
-            print(f"position of a diamond: ({diamond.position.x}, {diamond.position.y})")
 
         # teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
         
