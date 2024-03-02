@@ -1,3 +1,5 @@
+# Algoritma Nabrak Orang, Pulang Tepat Waktu
+
 import random
 from typing import Optional, List
 
@@ -14,10 +16,13 @@ class RandomLogic(BaseLogic):
         self.diamonds = []
 
     def getDiamond_inRange(self, board: Board, pos1: Position, pos2: Position) -> List[GameObject]:
-        x1 = pos1.x, x2 = pos2.x, y1 = pos1.y, y2 = pos2.y
+        x1 = pos1.x
+        x2 = pos2.x
+        y1 = pos1.y
+        y2 = pos2.y
 
         dirX, dirY = clamp(x1 - x2, -1, 1), clamp(y1 - y2, -1, 1)
-        diamonds = [d.position for d in board.game_objects if ((d.type == "DiamondGameObject") and (d.position.x in range(x1, x2, dirX)) and (d.position.y in range(y1, y2, dirY)))]
+        diamonds = [d.position for d in board.game_objects if ((d.type == "DiamondGameObject") and (d.position.x in range(x1, x2+dirX, dirX)) and (d.position.y in range(y1, y2+dirY, dirY)))]
         return diamonds
     
     def getDistance(self, pos1: Position, pos2: Position, byX: bool = True, byY: bool = True) -> int:
@@ -33,10 +38,22 @@ class RandomLogic(BaseLogic):
         delta_x = clamp(dest_x - current_x, -1, 1)
         delta_y = clamp(dest_y - current_y, -1, 1)
         if delta_x != 0:
-            if ((current_x + delta_x, current_y) in listBaru or (current_x + delta_x, current_y + delta_y) in listBaru):
+
+            isBlocked = False
+            for i in range(current_y, dest_y+delta_y, delta_y):
+                if ((current_x + delta_x, i) in listBaru):
+                    isBlocked = isBlocked
+
+            if (isBlocked or (current_x + delta_x, current_y) in listBaru or (current_x + delta_x, current_y + delta_y) in listBaru):
                 delta_x = 0
             else:
                 delta_y = 0
+        else:
+            if (current_x != 0 and (current_x, current_y+delta_y) in listBaru):
+                delta_x, delta_y = -1, 0
+            else:
+                delta_x, delta_y = 1, 0
+
         return (delta_x, delta_y)
 
     def next_move(self, board_bot: GameObject, board: Board):
@@ -47,28 +64,31 @@ class RandomLogic(BaseLogic):
         base = board_bot.properties.base
         redButton = [d.position for d in board.game_objects if d.type == "DiamondButtonGameObject"][0]
 
-        isRedButton = position_equals(current_position, diamonds[-1])
+        if(len(self.diamonds) == 0):
+            self.diamonds.append(base)
+        
+        isRedButton = position_equals(current_position, self.diamonds[-1])
         isBase = position_equals(current_position, base)
         if (isBase or isRedButton):
             if (not(isRedButton and isBase)):
-                diamonds = self.getDiamond_inRange(board, base, diamonds[-1])
+                self.diamonds = self.getDiamond_inRange(board, base, self.diamonds[-1])
             else:
-                diamonds = self.getDiamond_inRange(board, base, redButton)
+                self.diamonds = self.getDiamond_inRange(board, base, redButton)
             
 
-            if (self.getDistance(base, redButton, byY=False) > self.getDistance(base, redButton, byX=False)):
-                diamonds = sorted(diamonds, key=lambda diamond: diamond.y)[0:4]
+            if (self.getDistance(base, redButton, byY=False) < self.getDistance(base, redButton, byX=False)):
+                self.diamonds = sorted(self.diamonds, key=lambda diamond: diamond.y)[0:5]
             else:
-                diamonds = sorted(diamonds, key=lambda diamond: diamond.x)[0:4]
+                self.diamonds = sorted(self.diamonds, key=lambda diamond: diamond.x)[0:5]
 
-            diamonds = sorted(diamonds, key=lambda diamond: self.getDistance(diamond, current_position))
+            self.diamonds = sorted(self.diamonds, key=lambda diamond: self.getDistance(diamond, current_position))
             if (not(isRedButton and isBase)):
-                diamonds.append(base)
+                self.diamonds.append(base)
             else:
-                diamonds.append(redButton)
+                self.diamonds.append(redButton)
         
-        if (position_equals(current_position, diamonds[0])):
-            diamonds.pop(0)
+        if (position_equals(current_position, self.diamonds[0])):
+            self.diamonds.pop(0)
 
         # Analyze new state
         if props.diamonds == 5:
@@ -76,7 +96,7 @@ class RandomLogic(BaseLogic):
             self.goal_position = base
         else:
             # Just roam around
-            self.goal_position = diamonds[0]
+            self.goal_position = self.diamonds[0]
 
         if self.goal_position:
             # We are aiming for a specific position, calculate delta
