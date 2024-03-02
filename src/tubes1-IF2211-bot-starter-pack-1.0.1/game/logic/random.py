@@ -14,20 +14,25 @@ class RandomLogic(BaseLogic):
 
     def next_move(self, board_bot: GameObject, board: Board):
 
+        def position_equals(a: Position, b: Position):
+             return a.x == b.x and a.y == b.y
+
         props = board_bot.properties
+
+        tombol_merah = [d for d in board.game_objects if d.type == "DiamondButtonGameObject"]   
+
+        teleportasi = [d for d in board.game_objects if d.type == "TeleportGameObject"]    
 
         current_position = board_bot.position
 
         #INI BUAT TESTING
         arr_bot = board.bots
-        # print("lokasi -1", arr_bot[-1].position.x, arr_bot[-1].position.y)
-        # print("lokasi 0", arr_bot[0].position.x, arr_bot[0].position.y)
-        # print("lokasi 1", arr_bot[1].position.x, arr_bot[1].position.y)
-        # print("lokasi sekarang", current_position.x, current_position.y)
 
         list_diamonds = board.diamonds
 
         arr_1 = []
+
+        arr_1_teleport = []
 
         for diamond in list_diamonds:
 
@@ -37,78 +42,126 @@ class RandomLogic(BaseLogic):
 
             if filtered_bots:
                 arr_1.append((diamond, list_robot_terdekat[0]))
+
                 
-        # print("lokasi sekarang", current_position.x, current_position.y)
-        # print("x: ", arr_1[0][1].position.x, "y: ", arr_1[0][1].position.y)
+            teleport_terdekat = sorted(teleportasi, key=lambda teleport: abs(teleport.position.x - diamond.position.x) + abs(teleport.position.y - diamond.position.y))
+
+            list_robot_terdekat_teleportasi = sorted(filtered_bots, key=lambda bots: abs(bots.position.x - teleport_terdekat[1].position.x) + abs(bots.position.y - teleport_terdekat[1].position.y))
+
+            if filtered_bots:
+                arr_1_teleport.append((diamond, list_robot_terdekat_teleportasi[0]))
+
         
         arr_2 = []
 
+        arr_2_teleportasi = []
+
         for elemen in arr_1:
+              
+              #ini buat jarak biasa
 
               distance_to_us = abs(elemen[0].position.x - current_position.x) + abs(elemen[0].position.y - current_position.y)
 
               selisih = distance_to_us -  (abs(elemen[1].position.x - elemen[0].position.x) + abs(elemen[1].position.y - elemen[0].position.y))
 
-              arr_2.append((elemen[0], selisih, distance_to_us))
+              arr_2.append((elemen[0], selisih, distance_to_us, 1))
 
-        # print("x bot: ", current_position.x, "y bot: ", current_position.y)
-        # print("x: ", arr_2[0][0].position.x, "y: ", arr_2[0][0].position.y)
-        # print("selisih", arr_2[0][1])
-        # print("jarak ke kita", arr_2[0][2])
-    
+ 
+        for elemen in arr_1_teleport:
+              #ini buat jarak teleportasi
+
+              teleport_terdekat = sorted(teleportasi, key=lambda teleport: abs(teleport.position.x - diamond.position.x) + abs(teleport.position.y - diamond.position.y))
+
+              distance_to_us_teleportasi =  ((abs(elemen[0].position.x - teleport_terdekat[0].position.x) + abs(elemen[0].position.y - teleport_terdekat[0].position.y)) + (abs(teleport_terdekat[1].position.x - current_position.x) + abs(teleport_terdekat[1].position.y - current_position.y)))      
+
+              selisih_teleportasi = distance_to_us_teleportasi - ((abs(elemen[0].position.x - teleport_terdekat[0].position.x) + abs(elemen[0].position.y - teleport_terdekat[0].position.y)) + (abs(teleport_terdekat[1].position.x - elemen[1].position.x) + abs(teleport_terdekat[1].position.y - elemen[1].position.y)))     
+
+              arr_2_teleportasi.append((elemen[0], selisih_teleportasi, distance_to_us_teleportasi, 2))        
+
+
+        arr_2 = arr_2 + arr_2_teleportasi                                                                           
+
+
+        filtered_arr_2 = []
         filtered_arr_2 = [elem for elem in arr_2 if elem[1] < 0] 
 
+        #print("selisih", filtered_arr_2[0][1])
+        print("lokasi TM", tombol_merah[0].position.x, tombol_merah[0].position.y)
 
-        if filtered_arr_2 != []:
+        selected_goal = tombol_merah[0]
 
-            min_distance_elem = min(filtered_arr_2, key=lambda elem: elem[2]) 
+        print("panjang", len(filtered_arr_2))
 
-            selected_goal = min_distance_elem[0]
+        if len(filtered_arr_2) > 0 and filtered_arr_2 != []:
 
-        #     min_selisih_elem = min(filtered_arr_2, key=lambda elem: (elem[1], elem[2]))
+            print("dia masuk sini teleport")
 
-        #     selected_diamond = min_selisih_elem[0]
+            min_distance_elem = max(filtered_arr_2, key=lambda elem: elem[0].properties.points / elem[2]) 
+
+            if min_distance_elem[3] == 1:
+                selected_goal = min_distance_elem[0]
+                if not(position_equals(selected_goal.position, current_position)):
+                    selected_goal = min_distance_elem[0]
+                else:
+                    selected_goal = tombol_merah[0]
+            else:
+                 
+                 lokasi_teleport = sorted(teleportasi, key=lambda teleport: abs(teleport.position.x - current_position.x) + abs(teleport.position.y - current_position.y))
+
+                 selected_goal = lokasi_teleport[0]
+                 if not(position_equals(selected_goal.position, current_position)):
+                    selected_goal = lokasi_teleport[0]
+                 else:
+                    selected_goal = tombol_merah[0]
             
         else:
-             selected_goal = base
+             print("dia masuk tombol merah")
+             selected_goal = tombol_merah[0]
     
-        # #teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
-        # #print(diamond.position.x + " " + diamond.position.y)
-        # #print(teleport.position.x + " " + teleport.position.y)
-        # # Analyze new state
-        if props.diamonds == 5 or props.diamonds == 4:
-        #     # Move to base
+        steps_to_base = abs(current_position.x - props.base.x) + abs(current_position.y - props.base.y)
+        time_left = int(board_bot.properties.milliseconds_left / 1000)
+
+        if (props.diamonds == 5) or (steps_to_base == time_left) or (selected_goal.type == "DiamondGameObject" and selected_goal.properties.points == 2 and props.diamonds == 4) or props.diamonds == 5:
+
              base = board_bot.properties.base
-             self.goal_position = base
+
+             jarak_bot_ke_teleport = sorted(teleportasi, key=lambda teleport: (abs(teleport.position.x - current_position.x) + abs(teleport.position.y - current_position.y)))
+
+             jarak_base_biasa = abs(base.x - current_position.x) + abs(base.y - current_position.y)
+
+             jarak_base_teleportasi = ((abs(current_position.x - jarak_bot_ke_teleport[0].position.x) + abs(current_position.y - jarak_bot_ke_teleport[0].position.y)) + (abs(jarak_bot_ke_teleport[1].position.x - base.x) + abs(jarak_bot_ke_teleport[1].position.y - base.y)))
+
+             if jarak_base_biasa <= jarak_base_teleportasi:
+                  
+                self.goal_position = base
+            
+             else:
+
+                self.goal_position = teleportasi[0].position
 
         else:
-        #     # Just roam around
+
              self.goal_position = None
 
         if self.goal_position:
-             # We are aiming for a specific position, calculate delta
+
              delta_x, delta_y = get_direction(
                  current_position.x,
                  current_position.y,
                  self.goal_position.x,
                  self.goal_position.y,
              )
-        # #[1,2,3]
-        # #
+
         else:
-        #     # Roam around
-        #     # delta = self.directions[self.current_direction]
+
              delta_x, delta_y = get_direction(
                  current_position.x,
                  current_position.y,
                  selected_goal.position.x,
                  selected_goal.position.y,
              )
-            # delta_x = delta[0]
-            # delta_y = delta[1]
-            # if random.random() > 0.6:
-            #     self.current_direction = (self.current_direction + 1) % len(
-            #         self.directions
-            #     )
-        # return delta_x, delta_y
-        return delta_x, delta_y
+
+        filtered_arr_2 = []
+        
+        
+        return delta_x, delta_y 
