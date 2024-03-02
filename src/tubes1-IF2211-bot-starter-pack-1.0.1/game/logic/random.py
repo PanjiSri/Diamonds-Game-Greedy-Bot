@@ -41,6 +41,42 @@ class RandomLogic(BaseLogic):
         #         diamond.position.y,
         #     )
         # return delta_x, delta_y
+        def clamp(n, smallest, largest):
+            return max(smallest, min(n, largest))
+
+
+        def position_equals(a: Position, b: Position):
+             return a.x == b.x and a.y == b.y
+        
+        def get_direction_Adv(current_x: int, current_y: int, dest_x: int, dest_y: int, avoidList):
+            listBaru = [(a.x, a.y) for a in avoidList]
+            delta_x = clamp(dest_x - current_x, -1, 1)
+            delta_y = clamp(dest_y - current_y, -1, 1)
+            if delta_x != 0:
+
+                isBlocked = False
+                if (delta_y != 0 and dest_x-delta_x == current_x):
+                    for i in range(current_y, dest_y+delta_y, delta_y):
+                        if ((current_x + delta_x, i) in listBaru):
+                            isBlocked = True
+
+                if (isBlocked or (current_x + delta_x, current_y) in listBaru):
+                    delta_x = 0
+                    if delta_y == 0:
+                        if (current_y != 0 and not((current_x, current_y-1) in listBaru)):
+                            delta_x, delta_y = 0, -1
+                        else:
+                            delta_x, delta_y = 0, 1
+                else:
+                    delta_y = 0
+            if delta_x == 0:
+                if ((current_x, current_y+delta_y) in listBaru):
+                    if (current_x != 0 and not((current_x-1, current_y) in listBaru)):
+                        delta_x, delta_y = -1, 0
+                    else:
+                        delta_x, delta_y = 1, 0
+
+            return delta_x, delta_y
 
         props = board_bot.properties
 
