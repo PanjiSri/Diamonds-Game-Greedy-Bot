@@ -14,8 +14,43 @@ class RandomLogic(BaseLogic):
 
     def next_move(self, board_bot: GameObject, board: Board):
 
+         
+        def clamp(n, smallest, largest):
+            return max(smallest, min(n, largest))
+
+
         def position_equals(a: Position, b: Position):
              return a.x == b.x and a.y == b.y
+        
+        def get_direction_Adv(current_x: int, current_y: int, dest_x: int, dest_y: int, avoidList):
+            listBaru = [(a.x, a.y) for a in avoidList]
+            delta_x = clamp(dest_x - current_x, -1, 1)
+            delta_y = clamp(dest_y - current_y, -1, 1)
+            if delta_x != 0:
+
+                isBlocked = False
+                if (delta_y != 0 and dest_x-delta_x == current_x):
+                    for i in range(current_y, dest_y+delta_y, delta_y):
+                        if ((current_x + delta_x, i) in listBaru):
+                            isBlocked = True
+
+                if (isBlocked or (current_x + delta_x, current_y) in listBaru):
+                    delta_x = 0
+                    if delta_y == 0:
+                        if (current_y != 0 and not((current_x, current_y-1) in listBaru)):
+                            delta_x, delta_y = 0, -1
+                        else:
+                            delta_x, delta_y = 0, 1
+                else:
+                    delta_y = 0
+            if delta_x == 0:
+                if ((current_x, current_y+delta_y) in listBaru):
+                    if (current_x != 0 and not((current_x-1, current_y) in listBaru)):
+                        delta_x, delta_y = -1, 0
+                    else:
+                        delta_x, delta_y = 1, 0
+
+            return delta_x, delta_y
 
         props = board_bot.properties
 
@@ -34,9 +69,10 @@ class RandomLogic(BaseLogic):
 
         arr_1_teleport = []
 
+        filtered_bots = [bot for bot in arr_bot if not(bot.position.x == current_position.x and bot.position.y == current_position.y)]
+        
         for diamond in list_diamonds:
 
-            filtered_bots = [bot for bot in arr_bot if not(bot.position.x == current_position.x and bot.position.y == current_position.y)]
 
             list_robot_terdekat = sorted(filtered_bots, key=lambda bots: abs(bots.position.x - diamond.position.x) + abs(bots.position.y - diamond.position.y))
 
@@ -79,7 +115,7 @@ class RandomLogic(BaseLogic):
               arr_2_teleportasi.append((elemen[0], selisih_teleportasi, distance_to_us_teleportasi, 2))        
 
 
-        arr_2 = arr_2 + arr_2_teleportasi                                                                           
+        arr_2 = arr_2_teleportasi + arr_2                                                                           
 
 
         filtered_arr_2 = []
@@ -121,7 +157,7 @@ class RandomLogic(BaseLogic):
         steps_to_base = abs(current_position.x - props.base.x) + abs(current_position.y - props.base.y)
         time_left = int(board_bot.properties.milliseconds_left / 1000)
 
-        if (props.diamonds >= 5) or (steps_to_base == time_left) or (selected_goal.type == "DiamondGameObject" and selected_goal.properties.points == 2 and props.diamonds == 4):
+        if (props.diamonds >= 5) or (steps_to_base == time_left+1) or (selected_goal.type == "DiamondGameObject" and selected_goal.properties.points == 2 and props.diamonds == 4):
 
             base = board_bot.properties.base
 
@@ -131,7 +167,7 @@ class RandomLogic(BaseLogic):
 
             jarak_base_teleportasi = ((abs(base.x - sort_base_to_teleport[0].position.x) + abs(base.y - sort_base_to_teleport[0].position.y)) + (abs(current_position.x - sort_base_to_teleport[1].position.x) + abs(current_position.y - sort_base_to_teleport[1].position.y)))
 
-            if jarak_base_biasa <= jarak_base_teleportasi:
+            if jarak_base_biasa < jarak_base_teleportasi:
                   
                 self.goal_position = base
             
@@ -146,25 +182,35 @@ class RandomLogic(BaseLogic):
 
              self.goal_position = None
 
-        if self.goal_position:
+        dihindari = []
 
-             delta_x, delta_y = get_direction(
-                 current_position.x,
-                 current_position.y,
-                 self.goal_position.x,
-                 self.goal_position.y,
-             )
+        if self.goal_position:
+             
+             penggabungan = teleportasi
+            
+             for unsur in penggabungan:
+            
+                if not(position_equals(unsur.position, self.goal_position)):
+
+                    dihindari.append(unsur.position)
+
+            
+             delta_x, delta_y = get_direction_Adv(current_position.x, current_position.y, self.goal_position.x, self.goal_position.y, dihindari)
+            
 
         else:
+             penggabungan = teleportasi
+            
+             for unsur in penggabungan:
+            
+                if not(position_equals(unsur.position, selected_goal.position)):
 
-             delta_x, delta_y = get_direction(
-                 current_position.x,
-                 current_position.y,
-                 selected_goal.position.x,
-                 selected_goal.position.y,
-             )
+                    dihindari.append(unsur.position)
+
+             delta_x, delta_y = get_direction_Adv(current_position.x, current_position.y, selected_goal.position.x, selected_goal.position.y, dihindari)
 
         filtered_arr_2 = []
         
+        dihindari = []
         
         return delta_x, delta_y 
