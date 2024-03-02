@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from game.logic.base import BaseLogic
 from game.models import GameObject, Board, Position
-from ..util import get_direction, clamp
+from ..util import get_direction, clamp, position_equals
 
 
 class RandomLogic(BaseLogic):
@@ -11,34 +11,62 @@ class RandomLogic(BaseLogic):
         self.directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
         self.goal_position: Optional[Position] = None
         self.current_direction = 0
+        self.diamonds = []
 
     def getDiamond_inRange(self, board: Board, pos1: Position, pos2: Position) -> List[GameObject]:
-        dirX, dirY = clamp(pos1.x - pos2.x, -1, 1), clamp(pos1.y - pos2.y, -1, 1)
-        diamonds = [d for d in board.game_objects if ((d.type == "DiamondGameObject") and (d.position.x in range(pos1.x, pos2.x, dirX)) and (d.position.y in range(pos1.y, pos2.y, dirY)))]
+        x1 = pos1.x, x2 = pos2.x, y1 = pos1.y, y2 = pos2.y
+
+        dirX, dirY = clamp(x1 - x2, -1, 1), clamp(y1 - y2, -1, 1)
+        diamonds = [d.position for d in board.game_objects if ((d.type == "DiamondGameObject") and (d.position.x in range(x1, x2, dirX)) and (d.position.y in range(y1, y2, dirY)))]
         return diamonds
     
-    def getDistance(self, pos1: Position, pos2: Position) -> int:
-        return (abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y))
+    def getDistance(self, pos1: Position, pos2: Position, byX: bool = True, byY: bool = True) -> int:
+        jarak = 0
+        if(byX):
+            jarak += abs(pos1.x - pos2.x)
+        if(byY):
+            jarak += abs(pos1.y - pos2.y)
+        return jarak
 
     def next_move(self, board_bot: GameObject, board: Board):
         props = board_bot.properties
+        current_position = board_bot.position
 
         # Get base, red button, and diamonds in between
         base = board_bot.properties.base
         redButton = [d.position for d in board.game_objects if d.type == "DiamondButtonGameObject"][0]
+
+        isRedButton = position_equals(current_position, diamonds[-1])
+        isBase = position_equals(current_position, base)
+        if (isBase or isRedButton):
+            if (not(isRedButton and isBase)):
+                diamonds = self.getDiamond_inRange(board, base, diamonds[-1])
+            else:
+                diamonds = self.getDiamond_inRange(board, base, redButton)
+            
+
+            if (self.getDistance(base, redButton, byY=False) > self.getDistance(base, redButton, byX=False)):
+                diamonds = sorted(diamonds, key=lambda diamond: diamond.y)[0:4]
+            else:
+                diamonds = sorted(diamonds, key=lambda diamond: diamond.x)[0:4]
+
+            diamonds = sorted(diamonds, key=lambda diamond: self.getDistance(diamond, current_position))
+            if (not(isRedButton and isBase)):
+                diamonds.append(base)
+            else:
+                diamonds.append(redButton)
         
-        diamonds = self.getDiamond_inRange(board, base, redButton)
-        diamonds = sorted(diamonds, key=lambda diamond: self.getDistance(diamond.position, current_position))
-        
+        if (position_equals(current_position, diamonds[0])):
+            diamonds.pop(0)
+
         # Analyze new state
         if props.diamonds == 5:
             # Move to base
             self.goal_position = base
         else:
             # Just roam around
-            self.goal_position = None
+            self.goal_position = diamonds[0]
 
-        current_position = board_bot.position
         if self.goal_position:
             # We are aiming for a specific position, calculate delta
             delta_x, delta_y = get_direction(
@@ -47,13 +75,4 @@ class RandomLogic(BaseLogic):
                 self.goal_position.x,
                 self.goal_position.y,
             )
-        else:
-            # Roam around
-            delta = self.directions[self.current_direction]
-            delta_x = delta[0]
-            delta_y = delta[1]
-            if random.random() > 0.6:
-                self.current_direction = (self.current_direction + 1) % len(
-                    self.directions
-                )
-        return 0,1
+        return delta_x, delta_y
