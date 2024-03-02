@@ -48,7 +48,7 @@ class RandomLogic(BaseLogic):
                 delta_x = 0
             else:
                 delta_y = 0
-        else:
+        if delta_x == 0:
             if (current_x != 0 and (current_x, current_y+delta_y) in listBaru):
                 delta_x, delta_y = -1, 0
             else:
