@@ -46,7 +46,7 @@ class RandomLogic(BaseLogic):
                 
             teleport_terdekat = sorted(teleportasi, key=lambda teleport: abs(teleport.position.x - diamond.position.x) + abs(teleport.position.y - diamond.position.y))
 
-            list_robot_terdekat_teleportasi = sorted(filtered_bots, key=lambda bots: abs(bots.position.x - teleport_terdekat[1].position.x) + abs(bots.position.y - teleport_terdekat[1].position.y))
+            list_robot_terdekat_teleportasi = sorted(filtered_bots, key=lambda bots: (abs(bots.position.x - teleport_terdekat[1].position.x) + abs(bots.position.y - teleport_terdekat[1].position.y)))
 
             if filtered_bots:
                 arr_1_teleport.append((diamond, list_robot_terdekat_teleportasi[0]))
@@ -70,7 +70,7 @@ class RandomLogic(BaseLogic):
         for elemen in arr_1_teleport:
               #ini buat jarak teleportasi
 
-              teleport_terdekat = sorted(teleportasi, key=lambda teleport: abs(teleport.position.x - diamond.position.x) + abs(teleport.position.y - diamond.position.y))
+              teleport_terdekat = sorted(teleportasi, key=lambda teleport: (abs(teleport.position.x - elemen[0].position.x) + abs(teleport.position.y - elemen[0].position.y)))
 
               distance_to_us_teleportasi =  ((abs(elemen[0].position.x - teleport_terdekat[0].position.x) + abs(elemen[0].position.y - teleport_terdekat[0].position.y)) + (abs(teleport_terdekat[1].position.x - current_position.x) + abs(teleport_terdekat[1].position.y - current_position.y)))      
 
@@ -94,7 +94,6 @@ class RandomLogic(BaseLogic):
 
         if len(filtered_arr_2) > 0 and filtered_arr_2 != []:
 
-            print("dia masuk sini teleport")
 
             min_distance_elem = max(filtered_arr_2, key=lambda elem: elem[0].properties.points / elem[2]) 
 
@@ -105,12 +104,13 @@ class RandomLogic(BaseLogic):
                 else:
                     selected_goal = tombol_merah[0]
             else:
+                 print("dia masuk sini teleport")
                  
-                 lokasi_teleport = sorted(teleportasi, key=lambda teleport: abs(teleport.position.x - current_position.x) + abs(teleport.position.y - current_position.y))
+                 lokasi_teleport_cik = sorted(teleportasi, key=lambda teleport: abs(teleport.position.x - min_distance_elem[0].position.x) + abs(teleport.position.y - min_distance_elem[0].position.y))
 
-                 selected_goal = lokasi_teleport[0]
+                 selected_goal = lokasi_teleport_cik[1]
                  if not(position_equals(selected_goal.position, current_position)):
-                    selected_goal = lokasi_teleport[0]
+                    selected_goal = lokasi_teleport_cik[1]
                  else:
                     selected_goal = tombol_merah[0]
             
@@ -123,21 +123,35 @@ class RandomLogic(BaseLogic):
 
         if (props.diamonds == 5) or (steps_to_base == time_left) or (selected_goal.type == "DiamondGameObject" and selected_goal.properties.points == 2 and props.diamonds == 4) or props.diamonds == 5:
 
-             base = board_bot.properties.base
+            base = board_bot.properties.base
 
-             jarak_bot_ke_teleport = sorted(teleportasi, key=lambda teleport: (abs(teleport.position.x - current_position.x) + abs(teleport.position.y - current_position.y)))
+            #  sort_bot_ke_teleport = sorted(teleportasi, key=lambda teleport: (abs(teleport.position.x - current_position.x) + abs(teleport.position.y - current_position.y)))
 
-             jarak_base_biasa = abs(base.x - current_position.x) + abs(base.y - current_position.y)
+            #  jarak_base_biasa = abs(base.x - current_position.x) + abs(base.y - current_position.y)
 
-             jarak_base_teleportasi = ((abs(current_position.x - jarak_bot_ke_teleport[0].position.x) + abs(current_position.y - jarak_bot_ke_teleport[0].position.y)) + (abs(jarak_bot_ke_teleport[1].position.x - base.x) + abs(jarak_bot_ke_teleport[1].position.y - base.y)))
+            #  jarak_base_teleportasi = ((abs(current_position.x - sort_bot_ke_teleport[0].position.x) + abs(current_position.y - sort_bot_ke_teleport[0].position.y)) + (abs(sort_bot_ke_teleport[1].position.x - base.x) + abs(sort_bot_ke_teleport[1].position.y - base.y)))
 
-             if jarak_base_biasa <= jarak_base_teleportasi:
+            #  if jarak_base_biasa <= jarak_base_teleportasi:
+                  
+            #     self.goal_position = base
+            
+            #  else:
+
+            #     self.goal_position = 
+
+            sort_base_to_teleport = sorted(teleportasi, key=lambda teleport: (abs(teleport.position.x - base.x) + abs(teleport.position.y - base.y)))
+            
+            jarak_base_biasa = abs(base.x - current_position.x) + abs(base.y - current_position.y)
+
+            jarak_base_teleportasi = ((abs(base.x - sort_base_to_teleport[0].position.x) - abs(base.y - sort_base_to_teleport[0].position.y)) + (abs(current_position.x - sort_base_to_teleport[1].position.x) - abs(current_position.y - sort_base_to_teleport[1].position.y)))
+
+            if jarak_base_biasa <= jarak_base_teleportasi:
                   
                 self.goal_position = base
             
-             else:
+            else:
 
-                self.goal_position = teleportasi[0].position
+                self.goal_position = sort_base_to_teleport[1].position
 
         else:
 
