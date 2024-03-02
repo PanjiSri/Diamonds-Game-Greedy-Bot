@@ -27,6 +27,17 @@ class RandomLogic(BaseLogic):
         if(byY):
             jarak += abs(pos1.y - pos2.y)
         return jarak
+    
+    def get_direction_Adv(current_x: int, current_y: int, dest_x: int, dest_y: int, avoidList: List[Position]):
+        listBaru = [(a.x, a.y) for a in avoidList]
+        delta_x = clamp(dest_x - current_x, -1, 1)
+        delta_y = clamp(dest_y - current_y, -1, 1)
+        if delta_x != 0:
+            if ((current_x + delta_x, current_y) in listBaru or (current_x + delta_x, current_y + delta_y) in listBaru):
+                delta_x = 0
+            else:
+                delta_y = 0
+        return (delta_x, delta_y)
 
     def next_move(self, board_bot: GameObject, board: Board):
         props = board_bot.properties
