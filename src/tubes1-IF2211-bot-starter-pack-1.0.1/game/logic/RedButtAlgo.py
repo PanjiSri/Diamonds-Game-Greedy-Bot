@@ -5,7 +5,7 @@ from typing import Optional, List
 
 from game.logic.base import BaseLogic
 from game.models import GameObject, Board, Position
-from ..util import get_direction, clamp, position_equals
+from ..util import clamp, position_equals
 
 
 class RandomLogic(BaseLogic):
@@ -16,13 +16,24 @@ class RandomLogic(BaseLogic):
         self.diamonds = []
 
     def getDiamond_inRange(self, board: Board, pos1: Position, pos2: Position) -> List[GameObject]:
-        x1 = pos1.x
-        x2 = pos2.x
-        y1 = pos1.y
-        y2 = pos2.y
+        x1, x2 = pos1.x, pos2.x
+        y1, y2 = pos1.y, pos2.y
 
         dirX, dirY = clamp(x1 - x2, -1, 1), clamp(y1 - y2, -1, 1)
         diamonds = [d.position for d in board.game_objects if ((d.type == "DiamondGameObject") and (d.position.x in range(x1, x2+dirX, dirX)) and (d.position.y in range(y1, y2+dirY, dirY)))]
+        
+        if(len(diamonds) < 2):
+            if (abs(x1-x2) > abs(y1-y1)):
+                if(y2 == 0 or y2 == board.height-1):
+                    y1 -= dirY
+                else:
+                    y2 += dirY
+            else:
+                if(x2 == 0 or x2 == board.width-1):
+                    x1 -= dirX
+                else:
+                    x2 += dirX
+            diamonds = self.getDiamond_inRange(board, )
         return diamonds
     
     def getDistance(self, pos1: Position, pos2: Position, byX: bool = True, byY: bool = True) -> int:
@@ -32,29 +43,38 @@ class RandomLogic(BaseLogic):
         if(byY):
             jarak += abs(pos1.y - pos2.y)
         return jarak
-    
-    def get_direction_Adv(current_x: int, current_y: int, dest_x: int, dest_y: int, avoidList: List[Position]):
+
+    def get_direction_Adv(current_x: int, current_y: int, dest_x: int, dest_y: int, avoidList):
         listBaru = [(a.x, a.y) for a in avoidList]
         delta_x = clamp(dest_x - current_x, -1, 1)
         delta_y = clamp(dest_y - current_y, -1, 1)
         if delta_x != 0:
 
             isBlocked = False
-            for i in range(current_y, dest_y+delta_y, delta_y):
-                if ((current_x + delta_x, i) in listBaru):
-                    isBlocked = isBlocked
+            if (delta_y != 0 and dest_x-delta_x == current_x):
+                for i in range(current_y, dest_y+delta_y, delta_y):
+                    if ((current_x + delta_x, i) in listBaru):
+                        isBlocked = True
 
-            if (isBlocked or (current_x + delta_x, current_y) in listBaru or (current_x + delta_x, current_y + delta_y) in listBaru):
+            if (isBlocked or (current_x + delta_x, current_y) in listBaru):
                 delta_x = 0
+                if delta_y == 0:
+                    if (current_y != 0 and not((current_x, current_y-1) in listBaru)):
+                        delta_x, delta_y = 0, -1
+                    else:
+                        delta_x, delta_y = 0, 1
             else:
                 delta_y = 0
-        else:
-            if (current_x != 0 and (current_x, current_y+delta_y) in listBaru):
-                delta_x, delta_y = -1, 0
-            else:
-                delta_x, delta_y = 1, 0
+        if delta_x == 0:
+            if ((current_x, current_y+delta_y) in listBaru):
+                if (current_x != 0 and not((current_x-1, current_y) in listBaru)):
+                    delta_x, delta_y = -1, 0
+                else:
+                    delta_x, delta_y = 1, 0
 
-        return (delta_x, delta_y)
+        return delta_x, delta_y
+    
+    
 
     def next_move(self, board_bot: GameObject, board: Board):
         props = board_bot.properties
@@ -63,6 +83,7 @@ class RandomLogic(BaseLogic):
         # Get base, red button, and diamonds in between
         base = board_bot.properties.base
         redButton = [d.position for d in board.game_objects if d.type == "DiamondButtonGameObject"][0]
+        teleporter = [d.position for d in board.game_objects if d.type == "TeleportGameObject"]
 
         if(len(self.diamonds) == 0):
             self.diamonds.append(base)
@@ -100,10 +121,11 @@ class RandomLogic(BaseLogic):
 
         if self.goal_position:
             # We are aiming for a specific position, calculate delta
-            delta_x, delta_y = get_direction(
+            delta_x, delta_y = self.get_direction_Adv(
                 current_position.x,
                 current_position.y,
                 self.goal_position.x,
                 self.goal_position.y,
+                teleporter,
             )
         return delta_x, delta_y
