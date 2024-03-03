@@ -15,8 +15,6 @@ class Amalia(BaseLogic):
         props = board_bot.properties
         current_position = board_bot.position
 
-        # teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
-        
         # Analisis sort diamond berdasarkan points / jarak (densitas)
         list_diamonds = sorted(board.diamonds, key=lambda diamond: (diamond.properties.points / (abs(diamond.position.x - current_position.x) + abs(diamond.position.y - current_position.y))) if (abs(diamond.position.x - current_position.x) + abs(diamond.position.y - current_position.y)) != 0 else 1, reverse=True)
 
