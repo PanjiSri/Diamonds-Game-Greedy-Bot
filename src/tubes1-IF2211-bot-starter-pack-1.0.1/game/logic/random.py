@@ -47,18 +47,26 @@ class RandomLogic(BaseLogic):
 
             return delta_x, delta_y
         
-        def getDistance(pos1: Position, pos2: Position, listTele = []):
+        def getDistance(pos1: Position, pos2: Position, listTele: List[GameObject] = []):
             if (listTele != []):
-                tele1 = getDistance(pos1, listTele[0].position) + getDistance(pos2, listTele[1].position)
-                tele2 = getDistance(pos1, listTele[1].position) + getDistance(pos2, listTele[0].position)
-                if (tele1 < tele2):
-                    jarak = tele1
-                    idxTele = 0
-                else:
-                    jarak = tele2
-                    idxTele = 1
+                listTeleport = sorted(listTele, key=lambda teleport: teleport.properties.pair_id)
+                min_dist = 0
+                min_idx = 0
 
-                return (jarak, idxTele)
+                for i in range(0, len(listTeleport), 2):
+                    dist_tele1 = getDistance(pos1, listTeleport[i].position) + getDistance(pos2, listTeleport[i+1].position)
+                    dist_tele2 = getDistance(pos1, listTeleport[i+1].position) + getDistance(pos2, listTeleport[i].position)
+
+                    if (dist_tele1 < dist_tele2):
+                        if (dist_tele1 < min_dist):
+                            min_dist = dist_tele1
+                            min_idx = i
+                    else:
+                        if (dist_tele2 < min_dist):
+                            min_dist = dist_tele2
+                            min_idx = i+1
+
+                return (jarak, min_idx)
             else:
                 jarak = abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y)
                 return jarak
@@ -73,7 +81,7 @@ class RandomLogic(BaseLogic):
                 jarak = getDistance(current_position, d.position)
                 if (jarak != 0):
                     list_enemy.append(d)
-                elif (jarak == 1):
+                elif (jarak == 1 and board_bot.properties.can_tackle):
                     self.goal_position = d.position
                     isTackle = True
                     break
@@ -96,9 +104,9 @@ class RandomLogic(BaseLogic):
                 steps_to_base = steps_to_base_tele
                 isTele = idxTele
 
-            time_left = int(board_bot.properties.milliseconds_left / 1000)
+            time_left = int(board_bot.properties.milliseconds_left / board.minimum_delay_between_moves)
 
-            if (props.diamonds >= 5) or (steps_to_base == time_left+1):
+            if (props.diamonds == props.inventory_size) or (steps_to_base == time_left+1):
                 base = props.base
 
                 if (isTele == -1):
@@ -120,7 +128,7 @@ class RandomLogic(BaseLogic):
                         distance_to_us = getDistance(diamond.position, current_position)
                         (distance_to_us_tele, idxTele) = getDistance(diamond.position, current_position, list_Teleport)
 
-                        identifier = -1 # -1 for jalur biasa, 0 or 1 for jalur teleport (index tele)
+                        identifier = -1 # -1 for jalur biasa, 0 or lebih for jalur teleport (index tele)
                         if (distance_to_us_tele < distance_to_us):
                             distance_to_us = distance_to_us_tele
                             identifier = idxTele
