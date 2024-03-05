@@ -47,7 +47,7 @@ class RandomLogic(BaseLogic):
 
             return delta_x, delta_y
         
-        def getDistance(pos1: Position, pos2: Position, listTele: List[GameObject] = []):
+        def getDistance(pos1: Position, pos2: Position, listTele = []):
             if (listTele != []):
                 listTeleport = sorted(listTele, key=lambda teleport: teleport.properties.pair_id)
                 min_dist = 0
@@ -85,6 +85,8 @@ class RandomLogic(BaseLogic):
                     self.goal_position = d.position
                     isTackle = True
                     break
+                elif (jarak == 2):
+                    return 0, 0
 
         if (not(isTackle)):
             props = board_bot.properties
