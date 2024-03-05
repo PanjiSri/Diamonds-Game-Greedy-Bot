@@ -63,85 +63,99 @@ class RandomLogic(BaseLogic):
                 jarak = abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y)
                 return jarak
 
-        props = board_bot.properties
+        # Algo Tackle
         current_position = board_bot.position
-        list_redButt = [d for d in board.game_objects if d.type == "DiamondButtonGameObject"]
-        list_Teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
-        list_enemy = [d for d in board.game_objects if (d.type == "BotGameObject" and not(position_equals(current_position, d.position)))]
-        if (props.diamonds == 4):
-            list_diamonds = [d for d in board.game_objects if (d.type == "DiamondGameObject" and d.properties.points == 1)]
-        else:
-            list_diamonds = board.diamonds
+        isTackle = False
+        list_enemy = []
+        list_Teleport = []
+        for d in board.game_objects:
+            if (d.type == "BotGameObject"):
+                jarak = getDistance(current_position, d.position)
+                if (jarak != 0):
+                    list_enemy.append(d)
+                elif (jarak == 1):
+                    self.goal_position = d.position
+                    isTackle = True
+                    break
 
-        # Algo Back Home On Time
-        isTele = -1
-        steps_to_base = getDistance(current_position, props.base)
-        (steps_to_base_tele, idxTele) = getDistance(current_position, props.base, list_Teleport)
-        
-        if (steps_to_base_tele < steps_to_base):
-            steps_to_base = steps_to_base_tele
-            isTele = idxTele
-
-        time_left = int(board_bot.properties.milliseconds_left / 1000)
-
-        if (props.diamonds >= 5) or (steps_to_base == time_left+1):
-            base = props.base
-
-            if (isTele == -1):
-                self.goal_position = base
+        if (not(isTackle)):
+            props = board_bot.properties
+            list_redButt = [d for d in board.game_objects if d.type == "DiamondButtonGameObject"]
+            list_Teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
+            if (props.diamonds == 4):
+                list_diamonds = [d for d in board.game_objects if (d.type == "DiamondGameObject" and d.properties.points == 1)]
             else:
-                telePos = list_Teleport[isTele].position
-                if not(position_equals(telePos, current_position)):
-                    self.goal_position = telePos
-                else:
-                    self.goal_position = base
+                list_diamonds = board.diamonds
 
-        # Algo Searching for Goal
-        else:
-            pair_dia_dist = [] # # List of Tuple (diamond, distance to us, mode identifier)
+            # Algo Back Home On Time
+            isTele = -1
+            steps_to_base = getDistance(current_position, props.base)
+            (steps_to_base_tele, idxTele) = getDistance(current_position, props.base, list_Teleport)
             
-            for diamond in list_diamonds:
-                if (list_enemy):
-                    # Calculate Distance Diamond to Us
-                    distance_to_us = getDistance(diamond.position, current_position)
-                    (distance_to_us_tele, idxTele) = getDistance(diamond.position, current_position, list_Teleport)
+            if (steps_to_base_tele < steps_to_base):
+                steps_to_base = steps_to_base_tele
+                isTele = idxTele
 
-                    identifier = -1 # -1 for jalur biasa, 0 or 1 for jalur teleport (index tele)
-                    if (distance_to_us_tele < distance_to_us):
-                        distance_to_us = distance_to_us_tele
-                        identifier = idxTele
+            time_left = int(board_bot.properties.milliseconds_left / 1000)
 
-                    # Find Closest Enemy to Diamond
-                    distance_to_enemy = 0
-                    for i in list_enemy:
-                        a = getDistance(i.position, diamond.position)
-                        b = getDistance(i.position, diamond.position, list_Teleport)[0]
-                        if ((a != 0 and a < distance_to_enemy) or distance_to_enemy == 0):
-                            distance_to_enemy = a
-                        if ((b != 0 and b < distance_to_enemy) or distance_to_enemy == 0):
-                            distance_to_enemy = b
-                    
-                    # Filtered Possible Diamond to Target
-                    selisih = distance_to_us - distance_to_enemy
-                    if selisih < 0:
-                        if (identifier < 0):
-                            pair_dia_dist.append((diamond, distance_to_us, identifier))
-                        else:
-                            pair_dia_dist.insert(0, (diamond, distance_to_us, identifier))
+            if (props.diamonds >= 5) or (steps_to_base == time_left+1):
+                base = props.base
 
-            if pair_dia_dist != []:
-                # Choose Diamond by Density
-                min_distance_elem = max(pair_dia_dist, key=lambda elem: elem[0].properties.points / elem[1]) 
-
-                if min_distance_elem[2] == -1:
-                    self.goal_position = min_distance_elem[0].position
+                if (isTele == -1):
+                    self.goal_position = base
                 else:
-                    self.goal_position = list_Teleport.pop([min_distance_elem[2]]).position
+                    telePos = list_Teleport[isTele].position
+                    if not(position_equals(telePos, current_position)):
+                        self.goal_position = telePos
+                    else:
+                        self.goal_position = base
 
-            # No Possible Diamond
+            # Algo Searching for Goal
             else:
-                self.goal_position = list_redButt[0].position
-         
+                pair_dia_dist = [] # # List of Tuple (diamond, distance to us, mode identifier)
+                
+                for diamond in list_diamonds:
+                    if (list_enemy):
+                        # Calculate Distance Diamond to Us
+                        distance_to_us = getDistance(diamond.position, current_position)
+                        (distance_to_us_tele, idxTele) = getDistance(diamond.position, current_position, list_Teleport)
+
+                        identifier = -1 # -1 for jalur biasa, 0 or 1 for jalur teleport (index tele)
+                        if (distance_to_us_tele < distance_to_us):
+                            distance_to_us = distance_to_us_tele
+                            identifier = idxTele
+
+                        # Find Closest Enemy to Diamond
+                        distance_to_enemy = 0
+                        for i in list_enemy:
+                            a = getDistance(i.position, diamond.position)
+                            b = getDistance(i.position, diamond.position, list_Teleport)[0]
+                            if ((a != 0 and a < distance_to_enemy) or distance_to_enemy == 0):
+                                distance_to_enemy = a
+                            if ((b != 0 and b < distance_to_enemy) or distance_to_enemy == 0):
+                                distance_to_enemy = b
+                        
+                        # Filtered Possible Diamond to Target
+                        selisih = distance_to_us - distance_to_enemy
+                        if selisih < 0:
+                            if (identifier < 0):
+                                pair_dia_dist.append((diamond, distance_to_us, identifier))
+                            else:
+                                pair_dia_dist.insert(0, (diamond, distance_to_us, identifier))
+
+                if pair_dia_dist != []:
+                    # Choose Diamond by Density
+                    min_distance_elem = max(pair_dia_dist, key=lambda elem: elem[0].properties.points / elem[1]) 
+
+                    if min_distance_elem[2] == -1:
+                        self.goal_position = min_distance_elem[0].position
+                    else:
+                        self.goal_position = list_Teleport.pop([min_distance_elem[2]]).position
+
+                # No Possible Diamond
+                else:
+                    self.goal_position = list_redButt[0].position
+            
         delta_x, delta_y = get_direction_Adv(current_position.x, current_position.y, self.goal_position.x, self.goal_position.y, list_Teleport)
             
         return delta_x, delta_y
