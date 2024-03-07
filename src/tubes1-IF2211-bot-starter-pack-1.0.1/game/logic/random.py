@@ -17,8 +17,8 @@ class RandomLogic(BaseLogic):
         def position_equals(a: Position, b: Position):
              return a.x == b.x and a.y == b.y
         
-        def get_direction_Adv(current_x: int, current_y: int, dest_x: int, dest_y: int, avoidList):
-            listBaru = [(a.x, a.y) for a in avoidList]
+        def get_direction_Adv(current_x: int, current_y: int, dest_x: int, dest_y: int, avoidList = []):
+            listBaru = [(a.position.x, a.position.y) for a in avoidList]
             delta_x = clamp(dest_x - current_x, -1, 1)
             delta_y = clamp(dest_y - current_y, -1, 1)
             if delta_x != 0:
