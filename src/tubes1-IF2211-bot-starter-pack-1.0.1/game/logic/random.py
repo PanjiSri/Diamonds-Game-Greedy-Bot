@@ -54,8 +54,8 @@ class RandomLogic(BaseLogic):
                 min_idx = 0
 
                 for i in range(0, len(listTeleport), 2):
-                    dist_tele1 = getDistance(pos1, listTeleport[i].position) + getDistance(pos2, listTeleport[i+1].position)
-                    dist_tele2 = getDistance(pos1, listTeleport[i+1].position) + getDistance(pos2, listTeleport[i].position)
+                    dist_tele1 = getDistance(pos1, listTeleport[i].position)[0] + getDistance(pos2, listTeleport[i+1].position)[0]
+                    dist_tele2 = getDistance(pos1, listTeleport[i+1].position)[0] + getDistance(pos2, listTeleport[i].position)[0]
 
                     if (dist_tele1 < dist_tele2):
                         if (dist_tele1 < min_dist):
@@ -69,7 +69,7 @@ class RandomLogic(BaseLogic):
                 return (jarak, min_idx)
             else:
                 jarak = abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y)
-                return jarak
+                return (jarak, -1)
 
         # Algo Tackle
         current_position = board_bot.position
@@ -78,7 +78,7 @@ class RandomLogic(BaseLogic):
         list_Teleport = []
         for d in board.game_objects:
             if (d.type == "BotGameObject"):
-                jarak = getDistance(current_position, d.position)
+                jarak = getDistance(current_position, d.position)[0]
                 if (jarak != 0):
                     list_enemy.append(d)
                 elif (jarak == 1 and board_bot.properties.can_tackle):
@@ -98,8 +98,7 @@ class RandomLogic(BaseLogic):
                 list_diamonds = board.diamonds
 
             # Algo Back Home On Time
-            isTele = -1
-            steps_to_base = getDistance(current_position, props.base)
+            (steps_to_base, isTele) = getDistance(current_position, props.base)
             (steps_to_base_tele, idxTele) = getDistance(current_position, props.base, list_Teleport)
             
             if (steps_to_base_tele < steps_to_base):
@@ -127,10 +126,9 @@ class RandomLogic(BaseLogic):
                 for diamond in list_diamonds:
                     if (list_enemy):
                         # Calculate Distance Diamond to Us
-                        distance_to_us = getDistance(diamond.position, current_position)
+                        (distance_to_us, identifier) = getDistance(diamond.position, current_position)
                         (distance_to_us_tele, idxTele) = getDistance(diamond.position, current_position, list_Teleport)
 
-                        identifier = -1 # -1 for jalur biasa, 0 or lebih for jalur teleport (index tele)
                         if (distance_to_us_tele < distance_to_us):
                             distance_to_us = distance_to_us_tele
                             identifier = idxTele
@@ -138,7 +136,7 @@ class RandomLogic(BaseLogic):
                         # Find Closest Enemy to Diamond
                         distance_to_enemy = 0
                         for i in list_enemy:
-                            a = getDistance(i.position, diamond.position)
+                            a = getDistance(i.position, diamond.position)[0]
                             b = getDistance(i.position, diamond.position, list_Teleport)[0]
                             if ((a != 0 and a < distance_to_enemy) or distance_to_enemy == 0):
                                 distance_to_enemy = a
