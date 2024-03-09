@@ -18,7 +18,6 @@ iv. Author (identitas pembuat)
 
 ## General Information
 
-```
 Pada tugas pertama Strategi Algoritma ini, dibuat sebuah bot yang nantinya akan dipertandingkan satu sama lain. Bot tersebut akan menggunakan strategi greedy dalam melakukan pergerakan. Secara singkat dan sederhana, strategi greedy yang kami gunakan adalah memilih diamond berdasarkan density terbesar. Pada kasus ini, density yang dimaksud adalah nilai bobot diamond dibagi dengan jarak diamond. Tentunya kami juga  memastikan bahwa diamond yang menjadi solusi harus bisa diambil dengan mempertimbangkan komponen-komponen game lain seperti bot musuh, tombol merah, base, dan teleportasi.
 
 Berikut adalah deskripsi Program permainan Diamonds: 
@@ -30,7 +29,7 @@ Kode frontend permainan, yang berfungsi untuk memvisualisasikan permainan
 Program untuk memanggil API yang tersedia pada backend 
 Program bot logic (bagian ini yang akan kalian implementasikan dengan algoritma greedy untuk bot kelompok kalian) 
 Program utama (main) dan utilitas lainnya 
-```
+
 
 ## How to Run
 
@@ -101,6 +100,7 @@ cd tubes1-IF2110-bot-starter-pack-1.0.1
 pip install -r requirements.txt
 ```
 11. Untuk menjalankan beberapa bot sekaligus (pada contoh ini, kita menjalankan 4 bot dengan logic yang sama, yaitu game/logic/random.py)
+    
   Untuk windows
 ```
 ./run-bots.bat
@@ -122,25 +122,11 @@ pip install -r requirements.txt
 
 ```
 .
-│   README.md
-|
-└───doc
-|   └───Progress1_G03.pdf
-|       Progress2_G03.pdf
-|       Laporan_G03.pdf
-|
-└───src
-    |
-    └───attack.pl
-        dynamicfacts.pl
-        initiate.pl
-        map.pl
-        player.pl
-        risk.pl
-        rules.pl
-        staticfacts.pl
-        troops.pl
-        turn.pl
-        utilities.pl
-        wilayah.pl
+└── Tubes1_JadiMesin  /
+    ├── doc
+    ├── src/
+    │   ├── tubes1-IF2211-bot-starter-pack-1.0.1/
+    │   │   └── game
+    │   └── tubes1-IF2211-game-engine-1.1.0
+    └── README.md
 ```
