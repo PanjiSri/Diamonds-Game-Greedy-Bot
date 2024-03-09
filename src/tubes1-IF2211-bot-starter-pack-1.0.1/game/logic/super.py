@@ -89,6 +89,8 @@ class SuperBot(BaseLogic):
               selisih_teleportasi = distance_to_us_teleportasi - ((abs(elemen[0].position.x - teleport_terdekat[0].position.x) + abs(elemen[0].position.y - teleport_terdekat[0].position.y)) + (abs(teleport_terdekat[1].position.x - elemen[1].position.x) + abs(teleport_terdekat[1].position.y - elemen[1].position.y)))     
               arr_2_teleportasi.append((elemen[0], selisih_teleportasi, distance_to_us_teleportasi, 2))        
 
+        arr_2_teleportasi = sorted(arr_2_teleportasi, key=lambda elem: elem[2])
+        arr_2 = sorted(arr_2, key=lambda elem: elem[2])
         arr_2 = arr_2_teleportasi + arr_2                                                                           
 
         filtered_arr_2 = []
