@@ -8,9 +8,20 @@ program
 iv. Author (identitas pembuat)
 -->
 
-Global Conquest: Battle for Supremacy
+## Deskripsi Tugas Besar Pemanfaatan Algoritma Greedy dalam Pembuatan Bot Permainan Diamonds
 
-> built using GNU Prolog programming language.
+Pada tugas pertama Strategi Algoritma ini, dibuat sebuah bot yang nantinya akan dipertandingkan satu sama lain. Bot tersebut akan menggunakan strategi greedy dalam melakukan pergerakan. Secara singkat dan sederhana, strategi greedy yang kami gunakan adalah memilih diamond berdasarkan density terbesar. Pada kasus ini, density yang dimaksud adalah nilai bobot diamond dibagi dengan jarak diamond. Tentunya kami juga  memastikan bahwa diamond yang menjadi solusi harus bisa diambil dengan mempertimbangkan komponen-komponen game lain seperti bot musuh, tombol merah, base, dan teleportasi.
+
+Berikut adalah deskripsi Program permainan Diamonds: 
+1. Game engine, yang secara umum berisi: 
+Kode backend permainan, yang berisi logic permainan secara keseluruhan serta API yang disediakan untuk berkomunikasi dengan frontend dan program bot 
+Kode frontend permainan, yang berfungsi untuk memvisualisasikan permainan 
+
+2. Bot starter pack, yang secara umum berisi: 
+Program untuk memanggil API yang tersedia pada backend 
+Program bot logic (bagian ini yang akan kalian implementasikan dengan algoritma greedy untuk bot kelompok kalian) 
+Program utama (main) dan utilitas lainnya 
+
 
 ## Table of Contents
 
