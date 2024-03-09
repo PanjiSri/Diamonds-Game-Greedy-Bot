@@ -1,4 +1,6 @@
-# Tugas-Besar-Strategi-Algoritma-2024-Jadi-Mesin - Pemanfaatan Algoritma Greedy dalam Pembuatan Bot Permainan Diamonds
+# Tugas-Besar-Strategi-Algoritma-2024-Jadi-Mesin 
+
+## Pemanfaatan Algoritma Greedy dalam Pembuatan Bot Permainan Diamonds
 
 
 <!--
