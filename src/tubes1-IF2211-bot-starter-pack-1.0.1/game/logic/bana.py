@@ -1,4 +1,3 @@
-import random
 from typing import Optional, List
 
 from game.logic.base import BaseLogic

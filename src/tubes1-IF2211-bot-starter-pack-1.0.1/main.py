@@ -9,6 +9,7 @@ from game.logic.amalia import Amalia
 from game.logic.panji import Panji
 from game.logic.bana import Bana
 from game.logic.super import SuperBot
+# from game.logic.logic import Logic
 from game.util import *
 from game.logic.base import BaseLogic
 
@@ -20,6 +21,7 @@ CONTROLLERS = {
     "Panji": Panji,
     "Bana": Bana,
     "Super": SuperBot,
+    # "Logic" : Logic,
 }
 
 ###############################################################################
