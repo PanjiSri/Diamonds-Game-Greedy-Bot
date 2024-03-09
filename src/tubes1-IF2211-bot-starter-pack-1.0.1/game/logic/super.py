@@ -128,7 +128,7 @@ class SuperBot(BaseLogic):
         steps_to_base = abs(current_position.x - props.base.x) + abs(current_position.y - props.base.y)
         time_left = int(board_bot.properties.milliseconds_left / 1000)
 
-        if (props.diamonds >= 5) or (steps_to_base == time_left) or (selected_goal.type == "DiamondGameObject" and selected_goal.properties.points == 2 and props.diamonds == 4):
+        if (props.diamonds == props.inventory_size) or (steps_to_base == time_left) or (selected_goal.type == "DiamondGameObject" and selected_goal.properties.points == 2 and props.diamonds == props.inventory_size-1):
 
             base = board_bot.properties.base
 
