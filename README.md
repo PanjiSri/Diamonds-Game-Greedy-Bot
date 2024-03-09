@@ -2,15 +2,6 @@
 
 ## Pemanfaatan Algoritma Greedy dalam Pembuatan Bot Permainan Diamonds
 
-
-<!--
-i. Penjelasan singkat algoritma greedy yang diimplementasikan
-ii. Requirement program dan instalasi tertentu bila ada
-iii. Command atau langkah-langkah dalam meng-compile atau build
-program
-iv. Author (identitas pembuat)
--->
-
 ## Table of Contents
 
 - [General Info](#general-information)
@@ -42,13 +33,12 @@ Program utama (main) dan utilitas lainnya
 - Docker desktop (https://www.docker.com/products/docker-desktop/)
 - Yarn
 
-```
-npm install --global yarn
-```
-
 2. Clone repository ini.
   ```
   $ git clone https://github.com/PanjiSri/Tubes1_JadiMesin.git
+  ```
+  ```
+  npm install --global yarn
   ```
 
 3. Masuk ke root directory dari project.
@@ -61,12 +51,12 @@ npm install --global yarn
   yarn
   ```
 
-5. Run initiate.pl with the argument below
-   Untuk Windows
+5. Setup default environment variable dengan menjalankan script berikut
+  Untuk Windows
   ```
   ./scripts/copy-env.bat
   ```
-   Untuk Linux / (possibly) macOS
+  Untuk Linux / (possibly) macOS
   ```
   chmod +x ./scripts/copy-env.sh
   ./scripts/copy-env.sh
