@@ -74,6 +74,7 @@ class RandomLogic(BaseLogic):
         # Algo Tackle
         current_position = board_bot.position
         isTackle = False
+        isWait = False
         list_enemy = []
         list_Teleport = []
         for d in board.game_objects:
@@ -86,9 +87,11 @@ class RandomLogic(BaseLogic):
                     isTackle = True
                     break
                 elif (jarak == 2):
-                    return 0, 0
+                    isWait = True
 
         if (not(isTackle)):
+            if (isWait):
+                return 0,0
             props = board_bot.properties
             list_redButt = [d for d in board.game_objects if d.type == "DiamondButtonGameObject"]
             list_Teleport = [d for d in board.game_objects if d.type == "TeleportGameObject"]
@@ -121,7 +124,7 @@ class RandomLogic(BaseLogic):
 
             # Algo Searching for Goal
             else:
-                pair_dia_dist = [] # # List of Tuple (diamond, distance to us, mode identifier)
+                pair_dia_dist1 = [] # # List of Tuple (diamond, distance to us, mode identifier)
                 
                 for diamond in list_diamonds:
                     if (list_enemy):
@@ -153,7 +156,7 @@ class RandomLogic(BaseLogic):
 
                 if pair_dia_dist != []:
                     # Choose Diamond by Density
-                    min_distance_elem = max(pair_dia_dist, key=lambda elem: elem[0].properties.points / elem[1]) 
+                    min_distance_elem = sorted(pair_dia_dist, key=lambda elem: ((elem[0].properties.points / elem[1]), -(elem[1])))[0]
 
                     if min_distance_elem[2] == -1:
                         self.goal_position = min_distance_elem[0].position
