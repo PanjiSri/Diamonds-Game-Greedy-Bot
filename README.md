@@ -39,84 +39,84 @@ Program utama (main) dan utilitas lainnya
 - Node.js (https://nodejs.org/en)
 - Docker desktop (https://www.docker.com/products/docker-desktop/)
 - Yarn
-  ```
-  npm install --global yarn
-  ```
+
+```
+npm install --global yarn
+```
 
 2. Clone repository ini.
-
-```
-$ git clone https://github.com/PanjiSri/Tubes1_JadiMesin.git
-```
+  ```
+  $ git clone https://github.com/PanjiSri/Tubes1_JadiMesin.git
+  ```
 
 3. Masuk ke root directory dari project.
-```
-cd tubes1-IF2110-game-engine-1.1.0
-```
+  ```
+  cd tubes1-IF2110-game-engine-1.1.0
+  ```
 
 4. Install dependencies menggunakan Yarn.
-```
-yarn
-```
+  ```
+  yarn
+  ```
 
 5. Run initiate.pl with the argument below
    Untuk Windows
-```
-./scripts/copy-env.bat
-```
+  ```
+  ./scripts/copy-env.bat
+  ```
    Untuk Linux / (possibly) macOS
-```
-chmod +x ./scripts/copy-env.sh
-./scripts/copy-env.sh
-```
+  ```
+  chmod +x ./scripts/copy-env.sh
+  ./scripts/copy-env.sh
+  ```
 
 6.  Setup local database (buka aplikasi docker desktop terlebih dahulu, lalu jalankan command berikut di terminal)
-```
-docker compose up -d database
-```
+  ```
+  docker compose up -d database
+  ```
    Untuk Windows
-```
-./scripts/setup-db-prisma.bat
-```
+  ```
+  ./scripts/setup-db-prisma.bat
+  ```
    Untuk Linux / (possibly) macOS
-```
-chmod +x ./scripts/setup-db-prisma.sh
-./scripts/setup-db-prisma.s
-```
+  ```
+  chmod +x ./scripts/setup-db-prisma.sh
+  ./scripts/setup-db-prisma.s
+  ```
 7. Build
-```
-npm run build
-```
+  ```
+  npm run build
+  ```
 8. Run
-```
-npm run start
-```
+  ```
+  npm run start
+  ```
 9. Masuk ke root directory dari projec
-```
-cd tubes1-IF2110-bot-starter-pack-1.0.1
-```
+  ```
+  cd tubes1-IF2110-bot-starter-pack-1.0.1
+  ```
 10. Install dependencies menggunakan pip
-```
-pip install -r requirements.txt
-```
+  ```
+  pip install -r requirements.txt
+  ```
 11. Untuk menjalankan beberapa bot sekaligus (pada contoh ini, kita menjalankan 4 bot dengan logic yang sama, yaitu game/logic/random.py)
     
   Untuk windows
-```
-./run-bots.bat
-```
+  ```
+  ./run-bots.bat
+  ```
   Untuk Linux / (possibly) macOS
-```
-./run-bots.sh
-```
+  ```
+  ./run-bots.sh
+  ```
 
 ## Team Members
 
 | **NIM**  |        **Nama**         |
 | :------: | :---------------------: |
-| 13521013 | Panji Sri Kuncara Wisma |
-| 13521041 |   Ahmad Hasan Albana    |
-| 13521042 |      Amalia Putri       |
+| 13522028 | Panji Sri Kuncara Wisma |
+| 13522041 |   Ahmad Hasan Albana    |
+| 13522042 |      Amalia Putri       |
 
 ## Program Structure
 
@@ -126,7 +126,6 @@ pip install -r requirements.txt
     ├── doc
     ├── src/
     │   ├── tubes1-IF2211-bot-starter-pack-1.0.1/
-    │   │   └── game
     │   └── tubes1-IF2211-game-engine-1.1.0
     └── README.md
 ```
